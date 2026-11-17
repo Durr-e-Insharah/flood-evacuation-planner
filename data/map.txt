@@ -1,0 +1,54 @@
+# Flood Evacuation Planner - sample map
+# NODE <name> <AREA|SHELTER> [x y]     (x y = position on the GUI map, optional)
+# EDGE <from> <to> <distance_m> <flood_cm>   (roads are two-way; >= 30 cm = closed)
+
+NODE Colony_A AREA 70 190
+NODE Colony_B AREA 800 130
+NODE Colony_C AREA 170 370
+NODE Colony_D AREA 310 440
+NODE Colony_E AREA 80 560
+NODE Village_Rampur AREA 910 620
+NODE Main_Chowk AREA 300 200
+NODE Market_Chowk AREA 430 360
+NODE Canal_Chowk AREA 650 360
+NODE Station_Chowk AREA 260 540
+NODE Bus_Stand AREA 420 520
+NODE Bridge AREA 580 200
+NODE Old_Bridge AREA 850 300
+NODE Highway_Junction AREA 700 590
+NODE Park_Road AREA 190 655
+NODE University_Gate AREA 330 670
+NODE Industrial_Area AREA 880 470
+NODE School_Shelter SHELTER 580 60
+NODE Hospital_Shelter SHELTER 300 60
+NODE Stadium_Shelter SHELTER 540 470
+NODE College_Shelter SHELTER 500 670
+
+EDGE Colony_A Main_Chowk 300 0
+EDGE Colony_A Colony_C 500 0
+EDGE Main_Chowk Hospital_Shelter 600 0
+EDGE Hospital_Shelter School_Shelter 200 0
+EDGE Main_Chowk Bridge 400 0
+EDGE Bridge School_Shelter 300 0
+EDGE Main_Chowk Market_Chowk 350 0
+EDGE Colony_B Bridge 350 0
+EDGE Colony_B Old_Bridge 450 10
+EDGE Old_Bridge Canal_Chowk 400 25
+EDGE Canal_Chowk Market_Chowk 300 0
+EDGE Canal_Chowk Stadium_Shelter 700 0
+EDGE Market_Chowk Stadium_Shelter 500 0
+EDGE Colony_C Market_Chowk 250 0
+EDGE Colony_C Station_Chowk 400 0
+EDGE Station_Chowk Bus_Stand 300 0
+EDGE Station_Chowk College_Shelter 900 0
+EDGE Colony_D Station_Chowk 350 0
+EDGE Colony_D Bus_Stand 450 0
+EDGE Colony_E Colony_D 300 0
+EDGE Colony_E Park_Road 250 0
+EDGE Park_Road University_Gate 300 0
+EDGE University_Gate College_Shelter 400 0
+EDGE Bus_Stand Highway_Junction 500 0
+EDGE Highway_Junction College_Shelter 600 0
+EDGE Industrial_Area Highway_Junction 450 0
+EDGE Industrial_Area Canal_Chowk 800 40
+EDGE Village_Rampur Highway_Junction 1200 0

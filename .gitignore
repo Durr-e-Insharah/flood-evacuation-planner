@@ -1,0 +1,11 @@
+# build output
+*.exe
+*.o
+*.out
+planner
+build/
+cmake-build-*/
+
+# editor
+.vscode/
+.idea/

@@ -1,0 +1,23 @@
+ROUTE Colony_A School_Shelter
+NEAREST Colony_A
+BLOCK Bridge Main_Chowk
+ROUTE Colony_A School_Shelter
+CHECK Colony_B
+BLOCK Colony_B Bridge
+FLOOD Colony_B Old_Bridge 35
+CHECK Colony_B
+NEAREST Colony_B
+REACHABLE Colony_B
+UNDO
+CHECK Colony_B
+BLOCK Highway_Junction Village_Rampur
+CHECK Village_Rampur
+ROUTE Colony_A Village_Rampur
+UNDO
+UNDO
+UNDO
+UNDO
+UNDO
+ROUTE colony_a hospital_shelter
+ROUTE Colony_A Nowhere
+EXIT
