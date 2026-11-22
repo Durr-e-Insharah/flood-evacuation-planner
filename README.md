@@ -183,6 +183,15 @@ gold = route, green square = shelter, blue circle = area, red circle = area cut 
 All roads start open except one (Canal_Chowk - Industrial_Area, 40 cm of water), so red roads
 appear only after you block something.
 
+#### GUI features
+
+- **Statistics box** (top-left of the map): live count of open roads, manually blocked roads,
+  roads closed by flood, and areas cut off from every shelter. It updates after every BLOCK,
+  UNBLOCK, FLOOD and UNDO.
+- **Estimated travel time**: after a route is found, the panel shows the walking time (about 5 km/h)
+  and the vehicle time (about 30 km/h) for the total route distance, below the RESULT box.
+- **Updated design**: a navy header on the right panel, clearer road / node colours and a light map background.
+
 ---
 
 ## Data structures
