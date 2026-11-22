@@ -25,11 +25,11 @@ const float WIN_W = 1280, WIN_H = 680;  // fits a 1366x768 laptop screen
 const float PANEL_W = 340, MAP_W = WIN_W - PANEL_W;
 const float NODE_R = 14;
 
-const sf::Color C_BG(238, 242, 247), C_WHITE(255, 255, 255), C_BORDER(205, 214, 226);
-const sf::Color C_TEXT(30, 40, 55), C_GRAY(110, 120, 135);
-const sf::Color C_OPEN(70, 160, 100), C_WARN(235, 170, 30), C_BLOCK(215, 60, 60), C_FLOOD(50, 100, 205);
-const sf::Color C_ROUTE(255, 205, 0), C_AREA(70, 130, 200), C_SHELTER(35, 150, 85), C_CUT(220, 70, 70);
-const sf::Color C_FROM(30, 90, 200), C_TO(150, 60, 190), C_NAVY(15, 42, 74);
+const sf::Color C_BG(226, 236, 247), C_WHITE(255, 255, 255), C_BORDER(190, 205, 225);
+const sf::Color C_TEXT(25, 35, 55), C_GRAY(100, 112, 130);
+const sf::Color C_OPEN(46, 160, 110), C_WARN(245, 160, 20), C_BLOCK(225, 55, 70), C_FLOOD(40, 110, 220);
+const sf::Color C_ROUTE(255, 200, 30), C_AREA(60, 120, 215), C_SHELTER(20, 140, 90), C_CUT(225, 55, 70);
+const sf::Color C_FROM(30, 90, 200), C_TO(150, 60, 190), C_NAVY(18, 50, 95);
 
 enum Act { A_ROUTE, A_NEAREST, A_CHECK, A_REACH, A_BLOCK, A_UNDO, A_FUP, A_FDOWN, A_CLEAR };
 
@@ -346,7 +346,7 @@ int main(int argc, char* argv[]) {
         // ---- map card
         sf::RectangleShape card({MAP_W - 20, WIN_H - 20});
         card.setPosition({10, 10});
-        card.setFillColor(C_WHITE);
+        card.setFillColor(sf::Color(247, 251, 255));
         card.setOutlineColor(C_BORDER);
         card.setOutlineThickness(2);
         window.draw(card);
@@ -405,6 +405,31 @@ int main(int argc, char* argv[]) {
             drawText(window, font, g.name(v), pos[v].x, pos[v].y + NODE_R + 3, 13, C_TEXT, true, true);
         }
 
+        // ---- statistics box (top-left of the map)
+        {
+            int openRoads = 0, manualBlocked = 0, floodClosed = 0, cutOff = 0;
+            for (int u = 0; u < g.size(); u++) {
+                for (const Edge& e : g.adj(u)) {
+                    if (u > e.to) continue;
+                    if (Graph::isOpen(e)) openRoads++;
+                    else if (e.blocked) manualBlocked++;
+                    else floodClosed++;
+                }
+                if (!g.isShelter(u) && !planner.connectedToShelter(u)) cutOff++;
+            }
+            sf::RectangleShape sb({200, 106});
+            sb.setPosition({22, 22});
+            sb.setFillColor(sf::Color(246, 249, 253));
+            sb.setOutlineColor(C_BORDER);
+            sb.setOutlineThickness(1);
+            window.draw(sb);
+            drawText(window, font, "STATISTICS", 32, 28, 13, C_NAVY, false, false, true);
+            drawText(window, font, "Open roads: " + to_string(openRoads), 32, 47, 13, C_TEXT);
+            drawText(window, font, "Blocked roads: " + to_string(manualBlocked), 32, 63, 13, C_TEXT);
+            drawText(window, font, "Closed by flood: " + to_string(floodClosed), 32, 79, 13, C_TEXT);
+            drawText(window, font, "Areas cut off: " + to_string(cutOff), 32, 95, 13, cutOff > 0 ? C_CUT : C_TEXT);
+        }
+
         // ---- right panel
         float px = MAP_W + 10;
         sf::RectangleShape panel({PANEL_W - 10, WIN_H - 20});
@@ -414,9 +439,15 @@ int main(int argc, char* argv[]) {
         panel.setOutlineThickness(2);
         window.draw(panel);
 
+        // navy header band
+        sf::RectangleShape headerBand({PANEL_W - 10, 64});
+        headerBand.setPosition({px, 10});
+        headerBand.setFillColor(C_NAVY);
+        window.draw(headerBand);
+
         float tx = px + 16;
-        drawText(window, font, "Flood Evacuation Planner", tx, 22, 20, C_NAVY, false, false, true);
-        drawText(window, font, "Click FROM, then TO  (or click a road)", tx, 50, 13, C_GRAY);
+        drawText(window, font, "Flood Evacuation Planner", tx, 22, 20, C_WHITE, false, false, true);
+        drawText(window, font, "Click FROM, then TO  (or click a road)", tx, 50, 13, sf::Color(200, 215, 235));
 
         // selection info
         drawText(window, font, "FROM:", tx, 80, 15, C_FROM, false, false, true);
@@ -440,7 +471,6 @@ int main(int argc, char* argv[]) {
             window.draw(r);
             drawText(window, font, b.label, b.rect.position.x + b.rect.size.x / 2, b.rect.position.y + 8, 13, C_WHITE, true);
         }
-
         // result box
         float ry = 176 + 5 * 40 + 8;
         drawText(window, font, "RESULT", tx, ry, 14, C_NAVY, false, false, true);
@@ -454,6 +484,14 @@ int main(int argc, char* argv[]) {
         float ly = ry + 32;
         for (size_t i = 0; i < lines.size() && i < 7; i++, ly += 17) drawText(window, font, lines[i], tx + 8, ly, 13, C_TEXT);
 
+        // ---- estimated travel time for the current route
+        if (path.size() >= 2) {
+            int meters = planner.lastPath().dist;
+            int walkMin = (int)std::ceil(meters / 83.3);
+            int carMin = (int)std::ceil(meters / 500.0);
+            drawText(window, font, "Walking: ~" + to_string(walkMin) + " min   Vehicle: ~" + to_string(carMin) + " min",
+                     tx, ry + 24 + 118 + 6, 13, C_NAVY, false, false, true);
+        }
         // legend
         float lgY = WIN_H - 112;
         struct L {
@@ -472,9 +510,7 @@ int main(int argc, char* argv[]) {
             window.draw(sw);
             drawText(window, font, legend[i].text, lx + 34, lyy, 13, C_TEXT);
         }
-
         window.display();
-
         if (!shotPath.empty() && ++frames == 3) {
             bool saved = saveShot(shotPath);
             cout << (saved ? "Saved " : "Failed to save ") << shotPath << "\n";
